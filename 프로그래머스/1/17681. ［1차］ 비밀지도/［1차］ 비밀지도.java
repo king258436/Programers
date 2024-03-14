@@ -2,27 +2,27 @@ class Solution {
     public String[] solution(int n, int[] arr1, int[] arr2) {
         String[] answer = new String[n];
         for(int i=0;i<n;i++){
-            String b1=tobinary(n,arr1[i]);
-            String b2=tobinary(n,arr2[i]);
-            String line ="";
+            String a1=man_func(arr1[i],n);
+            String a2=man_func(arr2[i],n);
+            String line="";
             for(int j=0;j<n;j++){
-                if(b1.charAt(j)=='1'||b2.charAt(j)=='1'){
-                    line = line+"#";
+                if(a1.charAt(j)=='0'&&a2.charAt(j)=='0'){
+                    line+=" ";
                 }
                 else{
-                    line = line+" ";
+                    line+="#";
                 }
             }
             answer[i]=line;
         }
         return answer;
     }
-    public String tobinary(int n, int num){
-        String bin = Integer.toBinaryString(num);
-        int strlen = bin.length();
-        for(int i=0;i<n-strlen;i++){
-            bin = "0"+bin;
+    public String man_func(int num,int n){
+        int len=Integer.toBinaryString(num).length();
+        String a = Integer.toBinaryString(num);
+        for(int i=0;i<n-len;i++){
+            a="0"+a;
         }
-        return bin;
+        return a;
     }
 }
