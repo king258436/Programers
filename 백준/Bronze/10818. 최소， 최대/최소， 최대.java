@@ -1,19 +1,24 @@
-import java.util.Arrays;
 import java.util.Scanner;
+import static java.lang.Math.max;
+import static java.lang.Math.min;
 
 public class Main {
     public static void main(String[] args) {
-        Scanner in = new Scanner(System.in);// 일단 입력받을라고하면 이렇게 객체를 생성해 줘야한다.
-
-        int N = in.nextInt();// n 입력받음
-        int[] arr= new int[N];// N 만큼의 크기를 가진 int형 배열 arr 생성
-
-        for(int i=0;i<N;i++){
-            arr[i] = in.nextInt();
+        Scanner sc = new Scanner(System.in);
+        int n;
+        n=sc.nextInt();
+        Integer[] arr = new Integer[n];
+        for(int i=0;i<n;i++){
+            arr[i]=sc.nextInt();
         }
+        int min_val= (int) 2e9;
+        int max_val= (int) -2e9;
 
-        in.close();
-        Arrays.sort(arr);
-        System.out.println(arr[0]+" "+arr[N-1]);
+        for(int i=0;i<n;i++){
+            min_val=min(arr[i],min_val);
+            max_val=max(arr[i],max_val);
+        }
+        System.out.println(min_val+" "+max_val);
+
     }
 }
