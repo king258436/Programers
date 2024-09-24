@@ -1,69 +1,70 @@
 #include <stdio.h>
 
-int arr[50];   // 회전하는 큐
-int find[50];  // 지민이가 뽑아내야할 원소의 위치
-int n, m;      // n: 회전하는 큐의 원소 개수, m: 뽑아낼 원소 개수
-int result = 0; // 2, 3번 연산의 최소값 (출력 결과)
+typedef struct node {
+    int value;
+    struct node *next;
+    struct node *prev;
+} Node;
+
+int n, m;
+Node nodes[50];
+int targets[50];
+
+void init() {
+    nodes[0].value = 1;
+    nodes[0].prev = &nodes[n - 1];
+    for (int i = 1; i < n; i++) {
+        nodes[i].value = i + 1;
+        nodes[i - 1].next = &nodes[i];
+        nodes[i].prev = &nodes[i - 1];
+    }
+    nodes[n - 1].next = &nodes[0];
+}
+
+void disconnect_node(int target) {
+    Node *cur = &nodes[0];
+    while (cur->value != target) {
+        cur = cur->next;
+    }
+    cur->prev->next = cur->next;
+    cur->next->prev = cur->prev;
+}
 
 int main() {
-    int cur_idx = 0; // 현재 큐의 첫 번째 인덱스
+    int result = 0;
     scanf("%d %d", &n, &m);
 
-    // 뽑아내야 할 값 입력 받기
     for (int i = 0; i < m; i++) {
-        scanf("%d", &find[i]);
+        scanf("%d", &targets[i]);
     }
-
-    // 큐 초기화 (1 ~ n까지)
-    for (int i = 0; i < n; i++) {
-        arr[i] = i + 1;
-    }
-
-    // 각 뽑아야 할 원소에 대해 연산 수행
+    init();
+    Node *cur = &nodes[0];
     for (int i = 0; i < m; i++) {
-        int target = find[i]; // 이번에 뽑아야 할 값
-        int left_moves = 0, right_moves = 0;
+        int target = targets[i];
 
-        // 현재 큐에서 target이 어디 있는지 찾기
-        int target_idx = 0;
-        for (int j = 0; j < n; j++) {
-            if (arr[j] == target) {
-                target_idx = j;
-                break;
-            }
+        Node *left = cur;
+        int left_count = 0;
+
+        Node *right = cur;
+        int right_count = 0;
+
+        while (left->value != target) {
+            left = left->prev;
+            left_count++;
+        }
+        while (right->value != target) {
+            right = right->next;
+            right_count++;
         }
 
-        // 왼쪽으로 이동하는 경우 (현재 인덱스에서 목표 인덱스까지의 거리)
-        if (cur_idx <= target_idx) {
-            right_moves = target_idx - cur_idx;
-            left_moves = cur_idx + (n - target_idx);
-        } else {
-            right_moves = (n - cur_idx) + target_idx;
-            left_moves = cur_idx - target_idx;
+        if (right_count > left_count) {
+            result += left_count;
         }
-
-        // 최소 이동 횟수 선택
-        if (left_moves < right_moves) {
-            result += left_moves;
-            cur_idx = target_idx;
-        } else {
-            result += right_moves;
-            cur_idx = target_idx;
+        else {
+            result += right_count;
         }
-
-        // 원소 제거 (뽑아낸 원소는 0으로 설정)
-        arr[cur_idx] = 0;
-
-        // 남은 원소 재정렬
-        for (int j = cur_idx; j < n - 1; j++) {
-            arr[j] = arr[j + 1];
-        }
-        n--; // 큐 크기 감소
-        if (cur_idx == n) {
-            cur_idx = 0; // 인덱스가 범위를 넘으면 0으로 돌림
-        }
+        cur = right->next;
+        disconnect_node(target);
     }
-
-    // 결과 출력
-    printf("%d\n", result);
+    printf("%d", result);
 }
