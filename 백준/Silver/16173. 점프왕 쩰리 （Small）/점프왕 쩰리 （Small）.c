@@ -5,8 +5,8 @@ typedef struct {
     int y;
 } Po;
 
-int map[100][100];     // N의 최대 크기 100까지 처리 가능
-int visited[100][100]; // 방문 여부를 기록할 배열
+int map[3][3];     // N의 최대 크기 100까지 처리 가능
+int visited[3][3]; // 방문 여부를 기록할 배열
 int dx[] = {0, 1};     // 오른쪽과 아래로만 이동 가능
 int dy[] = {1, 0};
 
