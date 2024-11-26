@@ -1,103 +1,104 @@
-#include <iostream>
 #include <algorithm>
-#include <queue>
 #include <cstring>
+#include <iostream>
+#include <queue>
+#include <vector>
 using namespace std;
-int N, M;
-int graph[300][300];
-int tmp[300][300];
+
+typedef struct info {
+    int y, x;
+} Info;
+
+int map[300][300];
 bool visited[300][300];
-int dir[4][2] = { {0,1},{1,0},{0,-1},{-1,0} };
+int dy[] = {0, 1, -1, 0};
+int dx[] = {1, 0, 0, -1};
+int n, m;
 
-void check(int r, int c) {
-	queue<pair<int, int>>q;
-	q.push({ r,c });
-
-	while (!q.empty()) {
-		int cr = q.front().first;
-		int cc = q.front().second;
-		q.pop();
-
-		for (int i = 0; i < 4; i++) {
-			int nr = cr + dir[i][0];
-			int nc = cc + dir[i][1];
-
-			if (nr >= 0 && nr < N && nc >= 0 && nc < M) {
-				if (graph[nr][nc] != 0 && !visited[nr][nc]) {
-					q.push({ nr,nc });
-					visited[nr][nc] = true;
-				}
-			}
-		}
-	}
+void change_map(int cur[][300], int after[][300]) {
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < m; j++) {
+            after[i][j] = cur[i][j];
+        }
+    }
 }
-void meltIce() {
-	memset(tmp, 0, sizeof(tmp));
 
-	for (int i = 0; i < N; i++) {
-		for (int j = 0; j < M; j++) {
-			if (graph[i][j] == 0) continue;
-			int waterCnt = 0;
-			for (int k = 0; k < 4; k++) {
-				int nx = i + dir[k][0];
-				int ny = j + dir[k][1];
-				if (nx < 0 || ny < 0 || nx >= N || ny >= M) continue;
-				if (graph[nx][ny] == 0) {
-					waterCnt++;
-				}
-			}
-			int val = graph[i][j] - waterCnt;
-			if (val > 0) tmp[i][j] = val;
-		}
-	}
+void bfs(int y, int x) {
+    queue<Info> que;
+    que.push({y, x});
+    visited[y][x] = true;
 
-	for (int i = 0; i < N; i++) {
-		for (int j = 0; j < M; j++) {
-			graph[i][j] = tmp[i][j];
-		}
-	}
+    while (!que.empty()) {
+        int x = que.front().x;
+        int y = que.front().y;
+        que.pop();
+
+        for (int dir = 0; dir < 4; dir++) {
+            int nx = x + dx[dir];
+            int ny = y + dy[dir];
+
+            if (ny >= 0 && ny < n && nx >= 0 && nx < m && !visited[ny][nx] && map[ny][nx] > 0) {
+                visited[ny][nx] = true;
+                que.push({ny, nx});
+            }
+        }
+    }
 }
 
 int main() {
+    cin >> n >> m;
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < m; j++) {
+            cin >> map[i][j];
+        }
+    }
 
-	ios::sync_with_stdio(false);
-	cin.tie(0);
-	cout.tie(0);
-	cin >> N >> M;
-	for (int i = 0; i < N; i++) {
-		for (int j = 0; j < M; j++) {
-			cin >> graph[i][j];
-		}
-	}
+    int year = 0;
 
-	int time = 0;
-	while (true) {
-		//나뉘어졌는지, 빙산이 다 녹았는지 검사
-		int cnt = 0;
-		for (int i = 0; i < N; i++) {
-			for (int j = 0; j < M; j++) {
-				if (!visited[i][j] && graph[i][j] != 0) {
-					check(i, j);
-					cnt++;
-				}
-			}
-		}
-		//빙산이 다 녹았다면
-		if (cnt == 0) {
-			cout << 0;
-			break;
-		}
-		//빙산이 두 덩이 이상이라면
-		else if (cnt >= 2) {
-			cout << time;
-			break;
-		}
+    while (1) {
+        int new_map[300][300] = {0};
+        int island = 0;
+        memset(visited, false, sizeof(visited));
 
-		time++;
-		//빙산 녹이기
-		meltIce();
-		memset(visited, false, sizeof(visited));
+        // 빙산 높이 감소 계산
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < m; j++) {
+                if (map[i][j] > 0) {
+                    int cnt = 0;
+                    for (int dir = 0; dir < 4; dir++) {
+                        int ny = i + dy[dir];
+                        int nx = j + dx[dir];
+                        if (ny >= 0 && ny < n && nx >= 0 && nx < m && map[ny][nx] <= 0) {
+                            cnt++;
+                        }
+                    }
+                    new_map[i][j] = max(0, map[i][j] - cnt);
+                }
+            }
+        }
 
-	}
-	return 0;
+        // 덩어리 개수 계산
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < m; j++) {
+                if (map[i][j] > 0 && !visited[i][j]) {
+                    bfs(i, j);
+                    island++;
+                }
+            }
+        }
+
+        change_map(new_map, map);
+
+        if (island == 0) {
+            cout << 0;
+            break;
+        } else if (island >= 2) {
+            cout << year ;
+            break;
+        }
+
+        year++;
+    }
+
+    return 0;
 }
