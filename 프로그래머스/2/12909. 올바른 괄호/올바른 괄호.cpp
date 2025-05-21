@@ -1,28 +1,27 @@
 #include<string>
 #include <iostream>
+#include <stack>
 using namespace std;
 
 bool solution(string s)
 {
     bool answer = true;
-    string stack;
-    int len = s.length();
-    for(int i=0;i<len;i++){
-        if(s[i]=='('){
-            stack+="(";
+    stack<char> st;
+    for(char c : s){
+        if(c=='('){
+            st.push(c);
         }
-        else{
-            if(stack.back()!='('){
+        else if(c==')'){
+            if(!st.empty()&&st.top()=='('){
+                st.pop();
+            }
+            else {
                 return false;
             }
-            else{
-                stack.pop_back();
-            }
         }
     }
-    if(stack!=""){
-        return false;
+    if(!st.empty()){
+        answer=false;
     }
-
     return answer;
 }
