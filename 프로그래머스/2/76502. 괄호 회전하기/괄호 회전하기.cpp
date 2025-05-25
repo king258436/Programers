@@ -1,40 +1,36 @@
 #include <string>
 #include <vector>
 #include <stack>
-
+#include <map>
+#include <algorithm>
 using namespace std;
 
-bool def(string &s) {
-    stack<char> st;
-    for(char a : s) {
-        if(a == '{' || a == '[' || a == '(') {
-            st.push(a);
+map<char,char> m= {{'}','{'},{']','['},{')','('}};
+bool isValid(string &s, int start){
+    stack<char> stk;
+    for(int i=0;i<s.length();i++){
+        if(m.find(s[(start+i)%s.length()])==m.end()){
+            stk.push(s[(start+i)%s.length()]);
         }
-        else {
-            if(st.empty()) return false;  // 닫는 괄호가 먼저 나오는 경우
-            
-            if((a == '}' && st.top() == '{') ||
-               (a == ']' && st.top() == '[') ||
-               (a == ')' && st.top() == '(')) {
-                st.pop();
+        else{
+            if(!stk.empty()&&stk.top()==m[s[(start+i)%s.length()]]){
+                stk.pop();
             }
-            else {
-                return false; // 잘못된 괄호 매칭
-            }
+            else return false;
         }
     }
-    return st.empty();  // 스택이 비어 있어야 올바른 괄호열
+    if(stk.empty()){
+        return true;
+    }
+    else return false;
 }
 
 int solution(string s) {
     int answer = 0;
-
-    for(size_t i = 0; i < s.size(); i++) {
-        if(def(s)) {
+    for(int i=0;i<s.length();i++){
+        if(isValid(s,i)){
             answer++;
         }
-        s.push_back(s[0]);  // 첫 번째 문자를 뒤로 이동
-        s.erase(0, 1);          // 앞에서 제거
     }
     return answer;
 }
